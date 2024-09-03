@@ -1,0 +1,9 @@
+### Build the Frontend using Tailwind CSS
+
+
+- Create a form that takes a prompt
+- Create a button that calls the server action
+- Have a nice ui for when the image is blank or loading
+- Display the image that is returned
+- Have a button to generate a new image
+- Have a button to download the image
