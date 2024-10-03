@@ -82,13 +82,18 @@
             text-shadow: 2px 2px 4px var(--shadow-color);
         }
 
+        .input-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
         #prompt-input {
-            width: 100%;
+            flex-grow: 1;
             padding: 0.75rem;
             font-size: 1rem;
             border: 2px solid var(--secondary-color);
             border-radius: 8px;
-            margin-bottom: 1rem;
             background-color: var(--input-background);
             color: var(--text-color);
             transition: all 0.3s ease;
@@ -109,11 +114,10 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 100%;
-            margin-bottom: 0.5rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
+            white-space: nowrap;
         }
 
         .button:hover {
@@ -241,6 +245,14 @@
             transform: translateY(0);
         }
 
+        #error-message {
+            display: none;
+            color: #e53e3e;
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 1rem;
@@ -254,8 +266,12 @@
                 font-size: 2rem;
             }
 
+            .input-container {
+                flex-direction: column;
+            }
+
             .button {
-                padding: 0.6rem 1.2rem;
+                width: 100%;
             }
 
             .history-grid {
@@ -270,15 +286,18 @@
     <div class="container">
         <div class="card">
             <h1>Flux Image Generator</h1>
-            <input type="text" id="prompt-input" placeholder="Enter your image prompt">
-            <button id="generate-btn" class="button">Generate Image</button>
+            <div class="input-container">
+                <input type="text" id="prompt-input" placeholder="Enter your image prompt">
+                <button id="generate-btn" class="button">Generate</button>
+            </div>
             <div class="loading">Generating image</div>
+            <div id="error-message"></div>
             <div id="result">
                 <img id="generated-image" style="display: none;">
             </div>
             <div id="action-buttons">
-                <button id="new-image-btn" class="button">Generate New Image</button>
-                <button id="download-btn" class="button">Download Image</button>
+                <button id="new-image-btn" class="button">New Image</button>
+                <button id="download-btn" class="button">Download</button>
             </div>
         </div>
         <div id="history" class="card">
@@ -301,12 +320,16 @@
 
         async function generateImage() {
             const prompt = promptInput.value.trim();
-            if (!prompt) return;
+            if (!prompt) {
+                showError("Please enter a prompt.");
+                return;
+            }
 
             generateBtn.disabled = true;
             loading.style.display = 'block';
             generatedImage.style.display = 'none';
             actionButtons.style.display = 'none';
+            hideError();
 
             try {
                 const response = await fetch('/generate-image', {
@@ -317,17 +340,21 @@
                     body: JSON.stringify({ prompt }),
                 });
 
+                if (!response.ok) {
+                    throw new Error('Failed to generate image');
+                }
+
                 const data = await response.json();
                 generatedImage.src = data.image_url;
                 generatedImage.style.display = 'block';
-                actionButtons.style.display = 'block';
+                actionButtons.style.display = 'flex';
 
                 // Add to history
                 generatedImages.unshift({ prompt, url: data.image_url });
                 updateHistory();
             } catch (error) {
                 console.error('Error generating image:', error);
-                alert('An error occurred while generating the image. Please try again.');
+                showError('An error occurred while generating the image. Please try again.');
             } finally {
                 generateBtn.disabled = false;
                 loading.style.display = 'none';
@@ -351,6 +378,17 @@
                 });
                 historyGrid.appendChild(historyItem);
             });
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        function hideError() {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'none';
         }
 
         generateBtn.addEventListener('click', generateImage);
