@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flux Image Generator</title>
+    <!-- Import Google Fonts for better typography -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        /* CSS Variables for easy theming and dark mode support */
         :root {
             --primary-color: #6c5ce7;
             --secondary-color: #a29bfe;
@@ -17,6 +19,7 @@
             --background-pattern-color: rgba(162, 155, 254, 0.2);
         }
 
+        /* Dark mode color scheme */
         .dark-mode {
             --primary-color: #a29bfe;
             --secondary-color: #6c5ce7;
@@ -28,6 +31,7 @@
             --background-pattern-color: rgba(162, 155, 254, 0.1);
         }
 
+        /* Global styles */
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--background-color);
@@ -39,6 +43,7 @@
             overflow-x: hidden;
         }
 
+        /* Animated background pattern */
         .moving-background {
             position: fixed;
             top: 0;
@@ -52,11 +57,13 @@
             animation: moveBackground 60s linear infinite;
         }
 
+        /* Animation for moving background */
         @keyframes moveBackground {
             0% { background-position: 0 0; }
             100% { background-position: 100% 100%; }
         }
 
+        /* Main container styles */
         .container {
             max-width: 800px;
             margin: 2rem auto;
@@ -64,6 +71,7 @@
             position: relative;
         }
 
+        /* Card component styles */
         .card {
             background-color: var(--card-background);
             border-radius: 16px;
@@ -73,6 +81,7 @@
             transition: all 0.3s ease;
         }
 
+        /* Header styles */
         h1 {
             color: var(--primary-color);
             text-align: center;
@@ -82,12 +91,14 @@
             text-shadow: 2px 2px 4px var(--shadow-color);
         }
 
+        /* Input container styles */
         .input-container {
             display: flex;
             gap: 1rem;
             margin-bottom: 1rem;
         }
 
+        /* Input field styles */
         #prompt-input {
             flex-grow: 1;
             padding: 0.75rem;
@@ -105,6 +116,7 @@
             box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
         }
 
+        /* Button styles */
         .button {
             background-color: var(--primary-color);
             color: white;
@@ -126,11 +138,13 @@
             box-shadow: 0 4px 8px var(--shadow-color);
         }
 
+        /* Result container styles */
         #result {
             margin-top: 2rem;
             text-align: center;
         }
 
+        /* Generated image styles */
         #generated-image {
             max-width: 100%;
             border-radius: 8px;
@@ -143,6 +157,7 @@
             box-shadow: 0 8px 16px var(--shadow-color);
         }
 
+        /* Loading indicator styles */
         .loading {
             display: none;
             text-align: center;
@@ -156,6 +171,7 @@
             animation: dots 1.5s steps(5, end) infinite;
         }
 
+        /* Loading animation */
         @keyframes dots {
             0%, 20% { content: "."; }
             40% { content: ".."; }
@@ -163,12 +179,14 @@
             100% { content: ""; }
         }
 
+        /* Action buttons container styles */
         #action-buttons {
             display: none;
             margin-top: 1rem;
             gap: 0.5rem;
         }
 
+        /* Dark mode toggle button styles */
         #dark-mode-toggle {
             position: fixed;
             top: 1rem;
@@ -189,6 +207,7 @@
             color: var(--card-background);
         }
 
+        /* History section styles */
         #history {
             margin-top: 3rem;
         }
@@ -201,6 +220,7 @@
             text-shadow: 1px 1px 2px var(--shadow-color);
         }
 
+        /* Grid layout for history items */
         .history-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -208,6 +228,7 @@
             justify-content: center;
         }
 
+        /* History item styles */
         .history-item {
             position: relative;
             overflow: hidden;
@@ -245,6 +266,7 @@
             transform: translateY(0);
         }
 
+        /* Error message styles */
         #error-message {
             display: none;
             color: #e53e3e;
@@ -253,6 +275,7 @@
             font-weight: 600;
         }
 
+        /* Responsive design for mobile devices */
         @media (max-width: 480px) {
             .container {
                 padding: 1rem;
@@ -281,25 +304,34 @@
     </style>
 </head>
 <body>
+    <!-- Animated background element -->
     <div class="moving-background"></div>
+    <!-- Dark mode toggle button -->
     <button id="dark-mode-toggle">🌓</button>
     <div class="container">
+        <!-- Main card for image generation -->
         <div class="card">
             <h1>Flux Image Generator</h1>
+            <!-- Input container for prompt and generate button -->
             <div class="input-container">
                 <input type="text" id="prompt-input" placeholder="Enter your image prompt">
                 <button id="generate-btn" class="button">Generate</button>
             </div>
+            <!-- Loading indicator -->
             <div class="loading">Generating image</div>
+            <!-- Error message display -->
             <div id="error-message"></div>
+            <!-- Result container for generated image -->
             <div id="result">
                 <img id="generated-image" style="display: none;">
             </div>
+            <!-- Action buttons for new image and download -->
             <div id="action-buttons">
                 <button id="new-image-btn" class="button">New Image</button>
                 <button id="download-btn" class="button">Download</button>
             </div>
         </div>
+        <!-- History section for generated images -->
         <div id="history" class="card">
             <h2>Generated Images</h2>
             <div class="history-grid" id="history-grid"></div>
@@ -307,6 +339,7 @@
     </div>
 
     <script>
+        // DOM element references
         const promptInput = document.getElementById('prompt-input');
         const generateBtn = document.getElementById('generate-btn');
         const newImageBtn = document.getElementById('new-image-btn');
@@ -316,8 +349,10 @@
         const actionButtons = document.getElementById('action-buttons');
         const historyGrid = document.getElementById('history-grid');
 
+        // Array to store generated image data
         let generatedImages = [];
 
+        // Function to generate image based on user prompt
         async function generateImage() {
             const prompt = promptInput.value.trim();
             if (!prompt) {
@@ -332,6 +367,7 @@
             hideError();
 
             try {
+                // Send request to backend to generate image
                 const response = await fetch('/generate-image', {
                     method: 'POST',
                     headers: {
