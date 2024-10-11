@@ -1,4 +1,4 @@
-# Flux Image Generator
+# Flux Image Generator App
 
 Flux Image Generator is a web application that allows users to generate images based on text prompts using AI. It features a sleek, responsive design with dark mode support and a history of generated images.
 
